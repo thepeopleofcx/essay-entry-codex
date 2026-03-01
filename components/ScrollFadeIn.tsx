@@ -1,8 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { useInView } from 'framer-motion';
-import { useRef, ReactNode } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { ReactNode, useRef } from 'react';
 
 interface ScrollFadeInProps {
   children: ReactNode;
@@ -11,41 +10,30 @@ interface ScrollFadeInProps {
   className?: string;
 }
 
-export default function ScrollFadeIn({ 
-  children, 
-  delay = 0, 
-  direction = 'up',
-  className = '' 
-}: ScrollFadeInProps) {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+const offsets: Record<NonNullable<ScrollFadeInProps['direction']>, { x?: number; y?: number }> = {
+  up: { y: 56 },
+  down: { y: -56 },
+  left: { x: 56 },
+  right: { x: -56 },
+  none: {},
+};
 
-  const directionOffset = {
-    up: { y: 40 },
-    down: { y: -40 },
-    left: { x: 40 },
-    right: { x: -40 },
-    none: {}
-  };
+export default function ScrollFadeIn({
+  children,
+  delay = 0,
+  direction = 'up',
+  className = '',
+}: ScrollFadeInProps) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const inView = useInView(ref, { once: true, margin: '-15% 0px' });
 
   return (
     <motion.div
       ref={ref}
       className={className}
-      initial={{ 
-        opacity: 0,
-        ...directionOffset[direction]
-      }}
-      animate={isInView ? { 
-        opacity: 1,
-        x: 0,
-        y: 0
-      } : {}}
-      transition={{
-        duration: 0.8,
-        delay,
-        ease: [0.25, 0.4, 0.25, 1]
-      }}
+      initial={{ opacity: 0, ...offsets[direction] }}
+      animate={inView ? { opacity: 1, x: 0, y: 0 } : {}}
+      transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
